@@ -20,6 +20,7 @@ const [formData, setFormData] = useState({
     value: '',
     stage: 'prospect',
     contactId: '',
+    tags: '',
     // Task fields
     description: '',
     dueDate: '',
@@ -129,13 +130,13 @@ const dealData = {
           value: Number(formData.value),
           stage: formData.stage,
           contactId: Number(formData.contactId),
+          tags: formData.tags.trim(),
           probability: formData.stage === 'lead' ? 10 : 
                       formData.stage === 'qualified' ? 25 :
                       formData.stage === 'proposal' ? 50 :
                       formData.stage === 'negotiation' ? 75 : 90,
           expectedCloseDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         };
-        
         await dealService.create(dealData);
         toast.success('Deal added successfully!');
       } else if (type === 'task') {
@@ -166,8 +167,9 @@ setFormData({
         contactId: '',
         description: '',
         dueDate: '',
-        priority: 'medium',
-        status: 'not-started'
+priority: 'medium',
+        status: 'not-started',
+        tags: ''
       });
       setErrors({});
       
@@ -194,8 +196,9 @@ setFormData({
         company: '',
         title: '',
         value: '',
-        stage: 'prospect',
+stage: 'prospect',
         contactId: '',
+        tags: '',
         description: '',
         dueDate: '',
         priority: 'medium',
@@ -383,6 +386,16 @@ title={`Add New ${type === 'contact' ? 'Contact' : type === 'deal' ? 'Deal' : 'T
                   <p className="mt-1 text-sm text-error">{errors.contactId}</p>
                 )}
               </div>
+<div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Tags
+                        </label>
+                        <Input
+                          value={formData.tags}
+                          onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                          placeholder="Enter tags separated by commas"
+                        />
+                      </div>
             </>
           ) : (
 <>

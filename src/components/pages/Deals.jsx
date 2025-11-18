@@ -244,6 +244,9 @@ const [isExporting, setIsExporting] = useState(false);
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Stage
                   </th>
+<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tags
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
 Expected Close
                   </th>
@@ -286,6 +289,24 @@ Expected Close
                       <Badge variant={getStageColor(deal.stage)}>
                         {stageOptions.find(s => s.value === deal.stage)?.label || deal.stage}
                       </Badge>
+</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {deal.tags ? (
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {deal.tags.split(',').filter(tag => tag.trim()).slice(0, 3).map((tag, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {tag.trim()}
+                            </Badge>
+                          ))}
+                          {deal.tags.split(',').filter(tag => tag.trim()).length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{deal.tags.split(',').filter(tag => tag.trim()).length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">No tags</span>
+                      )}
                     </td>
 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {deal.expectedCloseDate ? 

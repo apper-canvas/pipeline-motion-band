@@ -12,8 +12,9 @@ export const dealService = {
       }
 
       const response = await apperClient.fetchRecords('deals_c', {
-        fields: [
+fields: [
           {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
           {"field": {"Name": "title_c"}},
           {"field": {"Name": "value_c"}},
           {"field": {"Name": "stage_c"}},
@@ -43,7 +44,8 @@ export const dealService = {
         probability: deal.probability_c || 0,
         expectedCloseDate: deal.expected_close_date_c,
         contactId: deal.contact_id_c?.Id || deal.contact_id_c,
-CreatedOn: deal.CreatedOn,
+tags: deal.Tags || '',
+        CreatedOn: deal.CreatedOn,
         updatedAt: deal.ModifiedOn
       }));
     } catch (error) {
@@ -60,8 +62,9 @@ CreatedOn: deal.CreatedOn,
       }
 
       const response = await apperClient.getRecordById('deals_c', id, {
-        fields: [
+fields: [
           {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
           {"field": {"Name": "title_c"}},
           {"field": {"Name": "value_c"}},
           {"field": {"Name": "stage_c"}},
@@ -85,8 +88,9 @@ CreatedOn: deal.CreatedOn,
         stage: deal.stage_c || 'lead',
         probability: deal.probability_c || 0,
         expectedCloseDate: deal.expected_close_date_c,
-        contactId: deal.contact_id_c?.Id || deal.contact_id_c,
-CreatedOn: deal.CreatedOn,
+contactId: deal.contact_id_c?.Id || deal.contact_id_c,
+        tags: deal.Tags || '',
+        CreatedOn: deal.CreatedOn,
         updatedAt: deal.ModifiedOn
       };
     } catch (error) {
@@ -103,8 +107,9 @@ CreatedOn: deal.CreatedOn,
       }
 
       const response = await apperClient.fetchRecords('deals_c', {
-        fields: [
+fields: [
           {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
           {"field": {"Name": "title_c"}},
           {"field": {"Name": "value_c"}},
           {"field": {"Name": "stage_c"}},
@@ -135,8 +140,9 @@ CreatedOn: deal.CreatedOn,
         title: deal.title_c || deal.Name,
         value: deal.value_c || 0,
         stage: deal.stage_c || 'lead',
-        probability: deal.probability_c || 0,
+probability: deal.probability_c || 0,
         expectedCloseDate: deal.expected_close_date_c,
+        tags: deal.Tags || '',
         contactId: deal.contact_id_c?.Id || deal.contact_id_c,
 CreatedOn: deal.CreatedOn,
         updatedAt: deal.ModifiedOn
@@ -155,8 +161,9 @@ CreatedOn: deal.CreatedOn,
       }
 
       const response = await apperClient.fetchRecords('deals_c', {
-        fields: [
+fields: [
           {"field": {"Name": "Name"}},
+          {"field": {"Name": "Tags"}},
           {"field": {"Name": "title_c"}},
           {"field": {"Name": "value_c"}},
           {"field": {"Name": "stage_c"}},
@@ -187,8 +194,9 @@ CreatedOn: deal.CreatedOn,
         title: deal.title_c || deal.Name,
         value: deal.value_c || 0,
         stage: deal.stage_c || 'lead',
-        probability: deal.probability_c || 0,
+probability: deal.probability_c || 0,
         expectedCloseDate: deal.expected_close_date_c,
+        tags: deal.Tags || '',
         contactId: deal.contact_id_c?.Id || deal.contact_id_c,
 CreatedOn: deal.CreatedOn,
         updatedAt: deal.ModifiedOn
@@ -213,8 +221,9 @@ CreatedOn: deal.CreatedOn,
           value_c: parseFloat(dealData.value) || 0,
           stage_c: dealData.stage || 'lead',
           probability_c: parseInt(dealData.probability) || 0,
-          expected_close_date_c: dealData.expectedCloseDate,
-          contact_id_c: parseInt(dealData.contactId)
+expected_close_date_c: dealData.expectedCloseDate,
+          contact_id_c: parseInt(dealData.contactId),
+          Tags: dealData.tags || ''
         }]
       };
 
@@ -246,8 +255,9 @@ CreatedOn: deal.CreatedOn,
             value: createdDeal.value_c || 0,
             stage: createdDeal.stage_c || 'lead',
             probability: createdDeal.probability_c || 0,
-            expectedCloseDate: createdDeal.expected_close_date_c,
+expectedCloseDate: createdDeal.expected_close_date_c,
             contactId: createdDeal.contact_id_c?.Id || createdDeal.contact_id_c,
+            tags: createdDeal.Tags || '',
 CreatedOn: createdDeal.CreatedOn,
             updatedAt: createdDeal.ModifiedOn
           };
@@ -274,7 +284,8 @@ CreatedOn: createdDeal.CreatedOn,
       if (dealData.value !== undefined) updateFields.value_c = parseFloat(dealData.value);
       if (dealData.stage !== undefined) updateFields.stage_c = dealData.stage;
       if (dealData.probability !== undefined) updateFields.probability_c = parseInt(dealData.probability);
-      if (dealData.expectedCloseDate !== undefined) updateFields.expected_close_date_c = dealData.expectedCloseDate;
+if (dealData.expectedCloseDate !== undefined) updateFields.expected_close_date_c = dealData.expectedCloseDate;
+      if (dealData.tags !== undefined) updateFields.Tags = dealData.tags;
       if (dealData.contactId !== undefined) updateFields.contact_id_c = parseInt(dealData.contactId);
 
       const params = {
@@ -313,8 +324,9 @@ CreatedOn: createdDeal.CreatedOn,
             stage: updatedDeal.stage_c || 'lead',
             probability: updatedDeal.probability_c || 0,
             expectedCloseDate: updatedDeal.expected_close_date_c,
-            contactId: updatedDeal.contact_id_c?.Id || updatedDeal.contact_id_c,
-CreatedOn: updatedDeal.CreatedOn,
+contactId: updatedDeal.contact_id_c?.Id || updatedDeal.contact_id_c,
+            tags: updatedDeal.Tags || '',
+            CreatedOn: updatedDeal.CreatedOn,
             updatedAt: updatedDeal.ModifiedOn
           };
         }
@@ -425,7 +437,8 @@ CreatedOn: updatedDeal.CreatedOn,
         { key: 'value', label: 'Deal Value', formatter: csvExportService.formatCurrency },
         { key: 'stage', label: 'Stage' },
         { key: 'probability', label: 'Probability (%)' },
-        { key: 'expectedCloseDate', label: 'Expected Close Date', formatter: csvExportService.formatDate },
+{ key: 'expectedCloseDate', label: 'Expected Close Date', formatter: csvExportService.formatDate },
+        { key: 'tags', label: 'Tags' },
         { key: 'createdAt', label: 'Created Date', formatter: csvExportService.formatDate },
         { key: 'updatedAt', label: 'Last Updated', formatter: csvExportService.formatDate }
       ];

@@ -44,11 +44,12 @@ const DealDetailModal = ({ isOpen, onClose, deal, onUpdate }) => {
   useEffect(() => {
     if (deal && isOpen) {
       setFormData({
-        title: deal.title || "",
+title: deal.title || "",
         value: deal.value || "",
         stage: deal.stage || "lead",
         probability: deal.probability || "",
-        expectedCloseDate: deal.expectedCloseDate || ""
+        expectedCloseDate: deal.expectedCloseDate || "",
+        tags: deal.tags || ""
       });
       loadRelatedData();
     }
@@ -81,10 +82,11 @@ const DealDetailModal = ({ isOpen, onClose, deal, onUpdate }) => {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const updateData = {
+const updateData = {
         ...formData,
         value: parseFloat(formData.value) || 0,
-        probability: parseFloat(formData.probability) || 0
+        probability: parseFloat(formData.probability) || 0,
+        tags: formData.tags.trim()
       };
       await dealService.update(deal.Id, updateData);
       toast.success("Deal updated successfully!");
@@ -275,6 +277,21 @@ const DealDetailModal = ({ isOpen, onClose, deal, onUpdate }) => {
                             onChange={(e) => handleInputChange("expectedCloseDate", e.target.value)}
                           />
                         </div>
+</div>
+
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Tags
+                        </label>
+                        <Input
+                          value={formData.tags}
+                          onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+                          placeholder="Enter tags separated by commas (e.g., hot-lead, enterprise, priority)"
+                          className="w-full"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Separate multiple tags with commas
+                        </p>
                       </div>
                       
                       {/* Created On - Read-only System Field - Dedicated Row */}
@@ -330,7 +347,22 @@ const DealDetailModal = ({ isOpen, onClose, deal, onUpdate }) => {
                                 {format(new Date(deal.expectedCloseDate), "MMM d, yyyy")}
                               </span>
                             </div>
-                          )}
+)}
+                          
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-medium text-gray-700">Tags</h4>
+                            {deal?.tags ? (
+                              <div className="flex flex-wrap gap-1">
+                                {deal.tags.split(',').filter(tag => tag.trim()).map((tag, index) => (
+                                  <Badge key={index} variant="secondary" className="text-xs">
+                                    {tag.trim()}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500">No tags</p>
+                            )}
+                          </div>
                         </div>
                       </div>
                       
