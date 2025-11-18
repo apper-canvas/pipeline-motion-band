@@ -245,7 +245,10 @@ const [isExporting, setIsExporting] = useState(false);
                     Stage
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Expected Close
+Expected Close
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Created On
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -284,9 +287,15 @@ const [isExporting, setIsExporting] = useState(false);
                         {stageOptions.find(s => s.value === deal.stage)?.label || deal.stage}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {deal.expectedCloseDate ? 
                         format(new Date(deal.expectedCloseDate), "MMM d, yyyy") : 
+                        "—"
+                      }
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {deal.CreatedOn ? 
+                        format(new Date(deal.CreatedOn), "MMM d, yyyy") : 
                         "—"
                       }
                     </td>

@@ -273,7 +273,20 @@ const DealDetailModal = ({ isOpen, onClose, deal, onUpdate }) => {
                             type="date"
                             value={formData.expectedCloseDate}
                             onChange={(e) => handleInputChange("expectedCloseDate", e.target.value)}
-                          />
+/>
+                        </div>
+                        
+                        {/* Created On - Read-only System Field */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Created On
+                          </label>
+                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm text-gray-600">
+                            {deal?.CreatedOn ? 
+                              format(new Date(deal.CreatedOn), "MMM d, yyyy 'at' h:mm a") : 
+                              "—"
+                            }
+                          </div>
                         </div>
                       </div>
                       
