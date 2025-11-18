@@ -216,14 +216,14 @@ CreatedOn: deal.CreatedOn,
 
 const params = {
         records: [{
-          Name: dealData.title,
+Name: dealData.title,
           title_c: dealData.title,
           value_c: parseFloat(dealData.value) || 0,
           stage_c: dealData.stage || 'lead',
           probability_c: parseInt(dealData.probability) || 0,
           expected_close_date_c: dealData.expectedCloseDate,
           contact_id_c: dealData.contactId ? parseInt(dealData.contactId) : null,
-          Tags: dealData.tags && dealData.tags.trim() ? dealData.tags.trim() : null
+          Tags: dealData.tags || null
         }]
       };
 
