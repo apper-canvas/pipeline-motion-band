@@ -111,46 +111,43 @@ const handleSubmit = async (e) => {
     
     try {
       if (type === 'contact') {
-        const contactData = {
-          name: formData.name,
+const contactData = {
+          firstName: formData.name.split(' ')[0] || '',
+          lastName: formData.name.split(' ').slice(1).join(' ') || '',
           email: formData.email,
           phone: formData.phone,
           company: formData.company,
-          status: 'active',
-          tags: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          position: '',
+          tags: []
         };
         
         await contactService.create(contactData);
         toast.success('Contact added successfully!');
       } else if (type === 'deal') {
-        const dealData = {
+const dealData = {
           title: formData.title,
           value: Number(formData.value),
           stage: formData.stage,
           contactId: Number(formData.contactId),
-          probability: formData.stage === 'prospect' ? 10 : 
+          probability: formData.stage === 'lead' ? 10 : 
                       formData.stage === 'qualified' ? 25 :
                       formData.stage === 'proposal' ? 50 :
                       formData.stage === 'negotiation' ? 75 : 90,
-          expectedCloseDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          expectedCloseDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         };
         
-await dealService.create(dealData);
+        await dealService.create(dealData);
         toast.success('Deal added successfully!');
       } else if (type === 'task') {
-        const taskData = {
+const taskData = {
           title: formData.title,
           description: formData.description,
-          dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
+          dueDate: formData.dueDate,
           priority: formData.priority,
           status: formData.status,
+          completed: false,
           contactId: formData.contactId ? Number(formData.contactId) : null,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          dealId: null
         };
         
         await taskService.create(taskData);
@@ -219,7 +216,7 @@ const stageOptions = [
 
 const contactOptions = contacts.map(contact => ({
     value: contact.Id.toString(),
-    label: `${contact.firstName} ${contact.lastName} - ${contact.company || 'No Company'}`
+    label: `${contact.firstName || ''} ${contact.lastName || ''} - ${contact.company || 'No Company'}`.trim()
   }));
 
   const priorityOptions = [
