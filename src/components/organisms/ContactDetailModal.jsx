@@ -71,13 +71,28 @@ const ContactDetailModal = ({ isOpen, onClose, contact, onUpdate }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
+const handleSave = async () => {
     try {
       setLoading(true);
+      
+      // Transform UI field names to database field names
       const updateData = {
-        ...formData,
-        tags: formData.tags ? formData.tags.split(",").map(t => t.trim()) : []
+        first_name_c: formData.firstName || '',
+        last_name_c: formData.lastName || '',
+        email_c: formData.email || '',
+        phone_c: formData.phone || '',
+        company_c: formData.company || '',
+        position_c: formData.position || '',
+        Tags: formData.tags ? formData.tags.split(",").map(t => t.trim()).filter(t => t).join(',') : ''
       };
+      
+      // Remove empty fields to avoid sending empty strings to database
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === '' || updateData[key] === null || updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
+
       await contactService.update(contact.Id, updateData);
       toast.success("Contact updated successfully!");
       setIsEditing(false);
@@ -85,6 +100,7 @@ const ContactDetailModal = ({ isOpen, onClose, contact, onUpdate }) => {
       onClose();
     } catch (err) {
       toast.error("Failed to update contact");
+      console.error("Update contact error:", err);
     } finally {
       setLoading(false);
     }

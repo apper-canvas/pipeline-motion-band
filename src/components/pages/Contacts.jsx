@@ -98,13 +98,19 @@ const handleExportContacts = async () => {
     }
   };
 
-  const getUniqueCompanies = () => {
+const getUniqueCompanies = () => {
     const companies = [...new Set(contacts.map(c => c.company).filter(Boolean))];
     return companies.map(company => ({ label: company, value: company }));
   };
 
   const getUniqueTags = () => {
-    const allTags = contacts.flatMap(c => c.tags || []);
+    const allTags = contacts.flatMap(c => {
+      // Handle both array and string formats for tags
+      if (Array.isArray(c.tags)) {
+        return c.tags;
+      }
+      return c.tags ? c.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+    });
     const uniqueTags = [...new Set(allTags)];
     return uniqueTags.map(tag => ({ label: tag, value: tag }));
   };
@@ -230,7 +236,7 @@ const handleExportContacts = async () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+<td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{contact.company || "—"}</div>
                       <div className="text-sm text-gray-500">{contact.position || "—"}</div>
                     </td>

@@ -1,6 +1,7 @@
-import { getApperClient } from "@/services/apperClient";
 import { toast } from "react-toastify";
 import { csvExportService } from "@/services/csvExportService";
+import React from "react";
+import { getApperClient } from "@/services/apperClient";
 
 export const contactService = {
   async getAll() {
@@ -268,7 +269,7 @@ export const contactService = {
     }
   },
 
-  async search(query, filters = {}) {
+async search(query, filters = {}) {
     try {
       const apperClient = getApperClient();
       if (!apperClient) {
@@ -346,7 +347,6 @@ export const contactService = {
 
       const params = {
         fields: [
-          {"field": {"Name": "Name"}},
           {"field": {"Name": "first_name_c"}},
           {"field": {"Name": "last_name_c"}},
           {"field": {"Name": "email_c"}},
@@ -356,29 +356,21 @@ export const contactService = {
           {"field": {"Name": "Tags"}},
           {"field": {"Name": "CreatedOn"}},
           {"field": {"Name": "ModifiedOn"}}
-        ]
+        ],
+        where: whereConditions,
+        whereGroups: whereGroups.length > 0 ? whereGroups : undefined,
+        orderBy: [{"fieldName": "ModifiedOn", "sorttype": "DESC"}]
       };
 
-      if (whereConditions.length > 0) {
-        params.where = whereConditions;
-      }
-
-      if (whereGroups.length > 0) {
-        params.whereGroups = whereGroups;
-      }
-
       const response = await apperClient.fetchRecords('contacts_c', params);
-
+      
       if (!response.success) {
         console.error(response.message);
-        return [];
+        throw new Error(response.message);
       }
 
-      if (!response?.data?.length) {
-        return [];
-      }
-
-      return response.data.map(contact => ({
+      // Transform database field names to UI field names for compatibility
+      const transformedData = response.data.map(contact => ({
         Id: contact.Id,
         firstName: contact.first_name_c || '',
         lastName: contact.last_name_c || '',
@@ -386,15 +378,17 @@ export const contactService = {
         phone: contact.phone_c || '',
         company: contact.company_c || '',
         position: contact.position_c || '',
-        tags: contact.Tags ? contact.Tags.split(',').map(t => t.trim()) : [],
+        tags: contact.Tags ? contact.Tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
         createdAt: contact.CreatedOn,
         updatedAt: contact.ModifiedOn
       }));
+
+      return transformedData;
     } catch (error) {
       console.error("Error searching contacts:", error?.response?.data?.message || error);
-      return [];
+      throw error;
     }
-  },
+},
 
   async exportToCSV(contactsToExport = null) {
     try {
