@@ -214,16 +214,16 @@ CreatedOn: deal.CreatedOn,
         throw new Error("ApperClient not available");
       }
 
-      const params = {
+const params = {
         records: [{
           Name: dealData.title,
           title_c: dealData.title,
           value_c: parseFloat(dealData.value) || 0,
           stage_c: dealData.stage || 'lead',
           probability_c: parseInt(dealData.probability) || 0,
-expected_close_date_c: dealData.expectedCloseDate,
+          expected_close_date_c: dealData.expectedCloseDate,
           contact_id_c: parseInt(dealData.contactId),
-          Tags: dealData.tags || ''
+          Tags: dealData.tags && dealData.tags.trim() ? dealData.tags.trim() : null
         }]
       };
 
