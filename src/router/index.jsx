@@ -7,6 +7,7 @@ import Layout from "@/components/organisms/Layout";
 // Lazy load components
 const Dashboard = lazy(() => import("@/components/pages/Dashboard"));
 const Contacts = lazy(() => import("@/components/pages/Contacts"));
+const Companies = lazy(() => import("@/components/pages/Companies"));
 const Deals = lazy(() => import("@/components/pages/Deals"));
 const Pipeline = lazy(() => import("@/components/pages/Pipeline"));
 const Tasks = lazy(() => import("@/components/pages/Tasks"));
@@ -73,8 +74,12 @@ const mainRoutes = [
     element: <Dashboard />,
   }),
   createRoute({
-    path: "contacts",
+path: "contacts",
     element: <Contacts />,
+  }),
+  createRoute({
+    path: "companies",
+    element: <Companies />,
   }),
   createRoute({
     path: "deals",

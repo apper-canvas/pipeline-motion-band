@@ -24,6 +24,19 @@
       },
       "redirectOnDeny": "/login"
     }
+},
+  "/companies": {
+    "allow": {
+      "when": {
+        "conditions": [
+          {
+            "label": "User must be authenticated to access companies",
+            "rule": "authenticated"
+          }
+        ]
+      },
+      "redirectOnDeny": "/login"
+    }
   },
   "/deals": {
     "allow": {

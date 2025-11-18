@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import Modal from '@/components/molecules/Modal';
-import Button from '@/components/atoms/Button';
-import Input from '@/components/atoms/Input';
-import Select from '@/components/atoms/Select';
-import { contactService } from '@/services/api/contactService';
-import { dealService } from '@/services/api/dealService';
-import { taskService } from '@/services/api/taskService';
-
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { contactService } from "@/services/api/contactService";
+import { dealService } from "@/services/api/dealService";
+import { taskService } from "@/services/api/taskService";
+import { companyService } from "@/services/api/companyService";
+import Modal from "@/components/molecules/Modal";
+import Select from "@/components/atoms/Select";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
 const QuickAddModal = ({ isOpen, onClose, onSuccess, type = 'contact' }) => {
 const [formData, setFormData] = useState({
     // Contact fields
@@ -46,21 +46,15 @@ useEffect(() => {
     }
   };
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-    // Clear error when user starts typing
+const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error for this field when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: ''
-      }));
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-const validateForm = () => {
+  const validateForm = () => {
     const newErrors = {};
     
     if (type === 'contact') {
@@ -85,7 +79,7 @@ const validateForm = () => {
       }
       
       if (!formData.contactId) {
-newErrors.contactId = 'Please select a contact';
+        newErrors.contactId = 'Please select a contact';
       }
     } else if (type === 'task') {
       if (!formData.title.trim()) {
@@ -95,10 +89,39 @@ newErrors.contactId = 'Please select a contact';
       if (formData.dueDate && new Date(formData.dueDate) < new Date()) {
         newErrors.dueDate = 'Due date cannot be in the past';
       }
+    } else if (type === 'company') {
+      if (!formData.Name || !formData.Name.trim()) {
+        newErrors.Name = 'Company name is required';
+      }
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleClose = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      title: '',
+      value: '',
+      stage: 'lead',
+      contactId: '',
+      tags: '',
+      description: '',
+      dueDate: '',
+      priority: 'medium',
+      status: 'not-started',
+      Name: '',
+      email_c: '',
+      phone_c: '',
+      address_c: '',
+      Tags: ''
+    });
+    setErrors({});
+    onClose();
   };
 
 const handleSubmit = async (e) => {
@@ -177,8 +200,7 @@ name: '',
       if (onSuccess) {
         onSuccess();
       }
-      onClose();
-      
+onClose();
     } catch (error) {
       console.error(`Error creating ${type}:`, error);
       toast.error(`Failed to add ${type}. Please try again.`);
@@ -187,29 +209,7 @@ name: '',
     }
   };
 
-const handleClose = () => {
-    if (!isSubmitting) {
-setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        title: '',
-        value: '',
-        stage: 'lead',
-        contactId: '',
-        tags: '',
-        description: '',
-        dueDate: '',
-        priority: 'medium',
-        status: 'not-started'
-      });
-      setErrors({});
-      onClose();
-    }
-  };
-
-const stageOptions = [
+  const stageOptions = [
     { value: 'lead', label: 'Lead' },
     { value: 'qualified', label: 'Qualified' },
     { value: 'proposal', label: 'Proposal' },
@@ -217,11 +217,13 @@ const stageOptions = [
     { value: 'closed-won', label: 'Closed Won' },
     { value: 'closed-lost', label: 'Closed Lost' }
   ];
-
-const contactOptions = contacts.map(contact => ({
-    value: contact.Id.toString(),
-    label: `${contact.firstName || ''} ${contact.lastName || ''} - ${contact.company || 'No Company'}`.trim()
-  }));
+const contactOptions = [
+    { value: '', label: 'Select a contact' },
+    ...contacts.map(contact => ({
+      value: contact.Id?.toString() || contact.id?.toString() || '',
+      label: `${contact.firstName || ''} ${contact.lastName || ''} - ${contact.company || 'No Company'}`.trim()
+    }))
+  ];
 
   const priorityOptions = [
     { value: 'low', label: 'Low' },
