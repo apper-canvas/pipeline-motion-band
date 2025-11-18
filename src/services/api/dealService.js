@@ -1,7 +1,7 @@
-import { getApperClient } from "@/services/apperClient";
 import { toast } from "react-toastify";
 import { csvExportService } from "@/services/csvExportService";
 import React from "react";
+import { getApperClient } from "@/services/apperClient";
 
 export const dealService = {
   async getAll() {
@@ -222,7 +222,7 @@ const params = {
           stage_c: dealData.stage || 'lead',
           probability_c: parseInt(dealData.probability) || 0,
           expected_close_date_c: dealData.expectedCloseDate,
-          contact_id_c: parseInt(dealData.contactId),
+          contact_id_c: dealData.contactId ? parseInt(dealData.contactId) : null,
           Tags: dealData.tags && dealData.tags.trim() ? dealData.tags.trim() : null
         }]
       };
@@ -276,7 +276,8 @@ CreatedOn: createdDeal.CreatedOn,
         throw new Error("ApperClient not available");
       }
 
-      const updateFields = {};
+const updateFields = { Id: parseInt(id) };
+      
       if (dealData.title !== undefined) {
         updateFields.Name = dealData.title;
         updateFields.title_c = dealData.title;
@@ -284,15 +285,12 @@ CreatedOn: createdDeal.CreatedOn,
       if (dealData.value !== undefined) updateFields.value_c = parseFloat(dealData.value);
       if (dealData.stage !== undefined) updateFields.stage_c = dealData.stage;
       if (dealData.probability !== undefined) updateFields.probability_c = parseInt(dealData.probability);
-if (dealData.expectedCloseDate !== undefined) updateFields.expected_close_date_c = dealData.expectedCloseDate;
-      if (dealData.tags !== undefined) updateFields.Tags = dealData.tags;
-      if (dealData.contactId !== undefined) updateFields.contact_id_c = parseInt(dealData.contactId);
-
+      if (dealData.expectedCloseDate !== undefined) updateFields.expected_close_date_c = dealData.expectedCloseDate;
+      if (dealData.contactId !== undefined) updateFields.contact_id_c = dealData.contactId ? parseInt(dealData.contactId) : null;
+      if (dealData.tags !== undefined) updateFields.Tags = dealData.tags && dealData.tags.trim() ? dealData.tags.trim() : null;
+      
       const params = {
-        records: [{
-          Id: parseInt(id),
-          ...updateFields
-        }]
+        records: [updateFields]
       };
 
       const response = await apperClient.updateRecord('deals_c', params);
@@ -439,7 +437,7 @@ contactId: updatedDeal.contact_id_c?.Id || updatedDeal.contact_id_c,
         { key: 'probability', label: 'Probability (%)' },
 { key: 'expectedCloseDate', label: 'Expected Close Date', formatter: csvExportService.formatDate },
         { key: 'tags', label: 'Tags' },
-        { key: 'createdAt', label: 'Created Date', formatter: csvExportService.formatDate },
+        { key: 'CreatedOn', label: 'Created Date', formatter: csvExportService.formatDate },
         { key: 'updatedAt', label: 'Last Updated', formatter: csvExportService.formatDate }
       ];
 
