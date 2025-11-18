@@ -252,14 +252,14 @@ const DealDetailModal = ({ isOpen, onClose, deal, onUpdate }) => {
                             onChange={(e) => handleInputChange("probability", e.target.value)}
                           />
                         </div>
-                      </div>
+</div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Stage
                           </label>
-<Select
+                          <Select
                             value={formData.stage}
                             onChange={(e) => handleInputChange("stage", e.target.value)}
                             options={stageOptions}
@@ -273,10 +273,12 @@ const DealDetailModal = ({ isOpen, onClose, deal, onUpdate }) => {
                             type="date"
                             value={formData.expectedCloseDate}
                             onChange={(e) => handleInputChange("expectedCloseDate", e.target.value)}
-/>
+                          />
                         </div>
-                        
-                        {/* Created On - Read-only System Field */}
+                      </div>
+                      
+                      {/* Created On - Read-only System Field - Dedicated Row */}
+                      <div className="grid grid-cols-1 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Created On
