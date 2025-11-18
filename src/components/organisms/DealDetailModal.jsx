@@ -86,7 +86,7 @@ const updateData = {
         ...formData,
         value: parseFloat(formData.value) || 0,
         probability: parseFloat(formData.probability) || 0,
-        tags: formData.tags.trim()
+        Tags: formData.tags.trim()
       };
       await dealService.update(deal.Id, updateData);
       toast.success("Deal updated successfully!");
