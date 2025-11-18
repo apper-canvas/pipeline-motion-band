@@ -362,13 +362,13 @@ const DealDetailModal = ({ isOpen, onClose, deal, onUpdate }) => {
                           <div className="flex justify-between">
                             <span className="text-sm text-gray-600">Created:</span>
                             <span className="text-sm font-medium">
-                              {format(new Date(deal.createdAt), "MMM d, yyyy")}
+{format(new Date(deal.CreatedOn), "MMM d, yyyy")}
                             </span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-sm text-gray-600">Last Updated:</span>
                             <span className="text-sm font-medium">
-                              {format(new Date(deal.updatedAt), "MMM d, yyyy")}
+{format(new Date(deal.ModifiedOn), "MMM d, yyyy")}
                             </span>
                           </div>
                         </div>

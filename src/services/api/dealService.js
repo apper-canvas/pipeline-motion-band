@@ -43,7 +43,7 @@ export const dealService = {
         probability: deal.probability_c || 0,
         expectedCloseDate: deal.expected_close_date_c,
         contactId: deal.contact_id_c?.Id || deal.contact_id_c,
-        createdAt: deal.CreatedOn,
+CreatedOn: deal.CreatedOn,
         updatedAt: deal.ModifiedOn
       }));
     } catch (error) {
@@ -86,7 +86,7 @@ export const dealService = {
         probability: deal.probability_c || 0,
         expectedCloseDate: deal.expected_close_date_c,
         contactId: deal.contact_id_c?.Id || deal.contact_id_c,
-        createdAt: deal.CreatedOn,
+CreatedOn: deal.CreatedOn,
         updatedAt: deal.ModifiedOn
       };
     } catch (error) {
@@ -138,7 +138,7 @@ export const dealService = {
         probability: deal.probability_c || 0,
         expectedCloseDate: deal.expected_close_date_c,
         contactId: deal.contact_id_c?.Id || deal.contact_id_c,
-        createdAt: deal.CreatedOn,
+CreatedOn: deal.CreatedOn,
         updatedAt: deal.ModifiedOn
       }));
     } catch (error) {
@@ -190,7 +190,7 @@ export const dealService = {
         probability: deal.probability_c || 0,
         expectedCloseDate: deal.expected_close_date_c,
         contactId: deal.contact_id_c?.Id || deal.contact_id_c,
-        createdAt: deal.CreatedOn,
+CreatedOn: deal.CreatedOn,
         updatedAt: deal.ModifiedOn
       }));
     } catch (error) {
@@ -248,7 +248,7 @@ export const dealService = {
             probability: createdDeal.probability_c || 0,
             expectedCloseDate: createdDeal.expected_close_date_c,
             contactId: createdDeal.contact_id_c?.Id || createdDeal.contact_id_c,
-            createdAt: createdDeal.CreatedOn,
+CreatedOn: createdDeal.CreatedOn,
             updatedAt: createdDeal.ModifiedOn
           };
         }
@@ -314,7 +314,7 @@ export const dealService = {
             probability: updatedDeal.probability_c || 0,
             expectedCloseDate: updatedDeal.expected_close_date_c,
             contactId: updatedDeal.contact_id_c?.Id || updatedDeal.contact_id_c,
-            createdAt: updatedDeal.CreatedOn,
+CreatedOn: updatedDeal.CreatedOn,
             updatedAt: updatedDeal.ModifiedOn
           };
         }
