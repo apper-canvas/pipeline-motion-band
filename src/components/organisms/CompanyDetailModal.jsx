@@ -316,7 +316,24 @@ export default function CompanyDetailModal({ isOpen, onClose, company, onUpdate 
           </div>
 
           {/* System Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+            <div>
+              <p className="text-sm font-medium text-gray-900 mb-2">Record Information</p>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-xs text-gray-500">Creation Date</p>
+                  <p className="text-sm text-gray-900">
+                    {company.CreatedOn ? format(new Date(company.CreatedOn), 'MMM d, yyyy h:mm a') : 'Unknown'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">Created By</p>
+                  <p className="text-sm text-gray-900">
+                    {company.CreatedBy?.Name || 'Unknown'}
+                  </p>
+                </div>
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Created On
