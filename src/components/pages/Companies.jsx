@@ -307,13 +307,13 @@ export default function Companies() {
         />
       )}
 
-      {/* Quick Add Modal */}
+{/* Quick Add Modal */}
       {showQuickAdd && (
         <QuickAddModal
           isOpen={showQuickAdd}
           onClose={() => setShowQuickAdd(false)}
           onSuccess={loadCompanies}
-          defaultType="company"
+          type="company"
         />
       )}
     </div>
