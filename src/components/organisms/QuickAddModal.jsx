@@ -130,7 +130,7 @@ const dealData = {
           value: Number(formData.value),
           stage: formData.stage,
           contactId: Number(formData.contactId),
-          Tags: formData.tags.trim(),
+          tags: formData.tags.trim(),
           probability: formData.stage === 'lead' ? 10 : 
                       formData.stage === 'qualified' ? 25 :
                       formData.stage === 'proposal' ? 50 :
