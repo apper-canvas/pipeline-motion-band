@@ -4,9 +4,11 @@ import { cn } from "@/utils/cn";
 import ApperIcon from "@/components/ApperIcon";
 import Pipeline from "@/components/pages/Pipeline";
 import Header from "@/components/organisms/Header";
+import { useAuth } from "@/layouts/Root";
 export default function Layout() {
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { logout } = useAuth();
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: "BarChart3" },
@@ -94,12 +96,7 @@ return (
               <ApperIcon name="Settings" className="w-5 h-5" />
             </button>
             <button 
-              onClick={() => {
-                import('@/layouts/Root').then(({ useAuth }) => {
-                  const { logout } = useAuth();
-                  logout();
-                });
-              }}
+onClick={logout}
               className="p-2 rounded-lg text-gray-700 hover:bg-gray-100"
             >
               <ApperIcon name="LogOut" className="w-5 h-5" />
