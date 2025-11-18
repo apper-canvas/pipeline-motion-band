@@ -76,6 +76,20 @@
       },
       "redirectOnDeny": "/login"
     }
+},
+  "/sales-orders": {
+    "allow": {
+      "when": {
+        "conditions": [
+          {
+            "label": "Sales orders require authentication",
+            "rule": "authenticated"
+          }
+        ]
+      },
+      "redirectOnDeny": "/login",
+      "excludeRedirectQuery": false
+    }
   },
   "/login": {
     "allow": {

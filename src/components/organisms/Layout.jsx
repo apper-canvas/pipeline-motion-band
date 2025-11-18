@@ -16,7 +16,8 @@ const navigation = [
     { name: "Companies", href: "/companies", icon: "Building" },
     { name: "Deals", href: "/deals", icon: "DollarSign" },
     { name: "Pipeline", href: "/pipeline", icon: "GitBranch" },
-    { name: "Tasks", href: "/tasks", icon: "CheckSquare" }
+{ name: "Tasks", href: "/tasks", icon: "CheckSquare" },
+    { name: "Sales Orders", href: "/sales-orders", icon: "ShoppingCart" }
   ];
 
   const isActive = (href) => {
