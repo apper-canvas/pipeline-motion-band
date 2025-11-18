@@ -183,10 +183,27 @@ function Tasks() {
     });
   };
 
-  const handleInputChange = (field, value) => {
+const handleInputChange = (field, value) => {
+    // Sanitize value to prevent circular references
+    let sanitizedValue = value;
+    
+    // Handle different value types
+    if (typeof value === 'object' && value !== null) {
+      if (value.target) {
+        // Handle synthetic events
+        sanitizedValue = value.target.value;
+      } else if (value.value !== undefined) {
+        // Handle option objects
+        sanitizedValue = value.value;
+      } else {
+        // Convert to string to avoid circular refs
+        sanitizedValue = String(value);
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: sanitizedValue
     }));
   };
 
@@ -505,9 +522,9 @@ function Tasks() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Priority
               </label>
-              <Select
+<Select
                 value={formData.priority}
-                onChange={(value) => handleInputChange('priority', value)}
+                onChange={(value) => handleInputChange('priority', typeof value === 'string' ? value : value?.value || value)}
                 options={prioritySelectOptions}
               />
             </div>
@@ -529,9 +546,9 @@ function Tasks() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Contact
               </label>
-              <Select
+<Select
                 value={formData.contactId}
-                onChange={(value) => handleInputChange('contactId', value)}
+                onChange={(value) => handleInputChange('contactId', typeof value === 'string' || typeof value === 'number' ? value : value?.value || value)}
                 options={[
                   { value: '', label: 'No contact' },
                   ...contacts.map(contact => ({
@@ -546,10 +563,10 @@ function Tasks() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Deal
-            </label>
+</label>
             <Select
               value={formData.dealId}
-              onChange={(value) => handleInputChange('dealId', value)}
+              onChange={(value) => handleInputChange('dealId', typeof value === 'string' || typeof value === 'number' ? value : value?.value || value)}
               options={[
                 { value: '', label: 'No deal' },
                 ...deals.map(deal => ({
@@ -624,9 +641,9 @@ function Tasks() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Priority
               </label>
-              <Select
+<Select
                 value={formData.priority}
-                onChange={(value) => handleInputChange('priority', value)}
+                onChange={(value) => handleInputChange('priority', typeof value === 'string' ? value : value?.value || value)}
                 options={prioritySelectOptions}
               />
             </div>
@@ -646,11 +663,11 @@ function Tasks() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contact
+Contact
               </label>
               <Select
                 value={formData.contactId}
-                onChange={(value) => handleInputChange('contactId', value)}
+                onChange={(value) => handleInputChange('contactId', typeof value === 'string' || typeof value === 'number' ? value : value?.value || value)}
                 options={[
                   { value: '', label: 'No contact' },
                   ...contacts.map(contact => ({
@@ -666,9 +683,9 @@ function Tasks() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Deal
             </label>
-            <Select
+<Select
               value={formData.dealId}
-              onChange={(value) => handleInputChange('dealId', value)}
+              onChange={(value) => handleInputChange('dealId', typeof value === 'string' || typeof value === 'number' ? value : value?.value || value)}
               options={[
                 { value: '', label: 'No deal' },
                 ...deals.map(deal => ({
@@ -678,7 +695,6 @@ function Tasks() {
               ]}
             />
           </div>
-
           <div className="flex justify-end gap-2 pt-4">
             <Button
               type="button"

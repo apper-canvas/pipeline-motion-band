@@ -337,24 +337,50 @@ console.error("Error fetching overdue tasks:", error?.response?.data?.message ||
     }
   },
 
-  async create(taskData) {
+async create(taskData) {
     try {
       const apperClient = getApperClient();
       if (!apperClient) {
         throw new Error("ApperClient not available");
       }
 
+      // Sanitize taskData to prevent circular references
+      const sanitizeValue = (value) => {
+        if (value === null || value === undefined) return value;
+        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;
+        if (typeof value === 'object') {
+          // Handle DOM elements or React synthetic events
+          if (value.target) return value.target.value;
+          if (value.value !== undefined) return value.value;
+          // Convert objects to string to avoid circular refs
+          return String(value);
+        }
+        return value;
+      };
+
+      // Clean the data before creating the record
+      const cleanData = {
+        title: sanitizeValue(taskData.title),
+        description: sanitizeValue(taskData.description) || '',
+        dueDate: sanitizeValue(taskData.dueDate),
+        completed: Boolean(sanitizeValue(taskData.completed)),
+        priority: sanitizeValue(taskData.priority) || 'medium',
+        status: sanitizeValue(taskData.status) || 'not-started',
+        contactId: sanitizeValue(taskData.contactId),
+        dealId: sanitizeValue(taskData.dealId)
+      };
+
       const params = {
         records: [{
-          Name: taskData.title,
-          title_c: taskData.title,
-          description_c: taskData.description || '',
-          due_date_c: taskData.dueDate,
-          completed_c: taskData.completed || false,
-          priority_c: taskData.priority || 'medium',
-          status_c: taskData.status || 'not-started',
-          contact_id_c: taskData.contactId ? parseInt(taskData.contactId) : null,
-          deal_id_c: taskData.dealId ? parseInt(taskData.dealId) : null
+          Name: cleanData.title,
+          title_c: cleanData.title,
+          description_c: cleanData.description,
+          due_date_c: cleanData.dueDate,
+          completed_c: cleanData.completed,
+          priority_c: cleanData.priority,
+          status_c: cleanData.status,
+          contact_id_c: cleanData.contactId ? parseInt(cleanData.contactId) : null,
+          deal_id_c: cleanData.dealId ? parseInt(cleanData.dealId) : null
         }]
       };
 
@@ -372,7 +398,7 @@ console.error("Error fetching overdue tasks:", error?.response?.data?.message ||
         
         if (failed.length > 0) {
           console.error(`Failed to create ${failed.length} tasks:`, failed);
-failed.forEach(record => {
+          failed.forEach(record => {
             record.errors?.forEach(error => {
               const errorMsg = typeof error === 'string' ? error : error?.message || 'Validation error';
               const fieldLabel = error?.fieldLabel || 'Field';
@@ -399,7 +425,7 @@ failed.forEach(record => {
         }
       }
     } catch (error) {
-console.error("Error creating task:", error?.response?.data?.message || error?.message || 'Unknown error');
+      console.error("Error creating task:", error?.response?.data?.message || error?.message || 'Unknown error');
       throw new Error(error?.response?.data?.message || error?.message || 'Failed to create task');
     }
   },
