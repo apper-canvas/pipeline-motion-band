@@ -174,10 +174,20 @@ const taskData = {
           dealId: null
         };
         
-        await taskService.create(taskData);
+await taskService.create(taskData);
         toast.success('Task added successfully!');
+      } else if (type === 'company') {
+        const companyData = {
+          Name: formData.Name,
+          email_c: formData.email_c,
+          phone_c: formData.phone_c,
+          address_c: formData.address_c,
+          Tags: formData.Tags
+        };
+        
+        await companyService.create(companyData);
+        toast.success('Company added successfully!');
       }
-      
       // Reset form
 setFormData({
 name: '',
@@ -241,7 +251,7 @@ const contactOptions = [
     <Modal 
       isOpen={isOpen} 
       onClose={handleClose} 
-title={`Add New ${type === 'contact' ? 'Contact' : type === 'deal' ? 'Deal' : 'Task'}`}
+title={`Add New ${type === 'contact' ? 'Contact' : type === 'deal' ? 'Deal' : type === 'company' ? 'Company' : 'Task'}`}
     >
 <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-4">
@@ -400,8 +410,89 @@ title={`Add New ${type === 'contact' ? 'Contact' : type === 'deal' ? 'Deal' : 'T
                         />
                       </div>
             </>
+) : type === 'company' ? (
+            <>
+              <div className="space-y-1.5">
+                <label htmlFor="company-name" className="block text-sm font-medium text-gray-900">
+                  Company Name *
+                </label>
+                <Input
+                  id="company-name"
+                  type="text"
+                  placeholder="Enter company name"
+                  value={formData.Name}
+                  onChange={(e) => handleInputChange('Name', e.target.value)}
+                  error={errors.Name}
+                  disabled={isSubmitting}
+                  className="w-full"
+                />
+                {errors.Name && (
+                  <p className="mt-1 text-sm text-error">{errors.Name}</p>
+                )}
+              </div>
+              
+              <div className="space-y-1.5">
+                <label htmlFor="company-email" className="block text-sm font-medium text-gray-900">
+                  Email
+                </label>
+                <Input
+                  id="company-email"
+                  type="email"
+                  placeholder="Enter company email"
+                  value={formData.email_c}
+                  onChange={(e) => handleInputChange('email_c', e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full"
+                />
+              </div>
+              
+              <div className="space-y-1.5">
+                <label htmlFor="company-phone" className="block text-sm font-medium text-gray-900">
+                  Phone
+                </label>
+                <Input
+                  id="company-phone"
+                  type="tel"
+                  placeholder="Enter company phone"
+                  value={formData.phone_c}
+                  onChange={(e) => handleInputChange('phone_c', e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full"
+                />
+              </div>
+              
+              <div className="space-y-1.5">
+                <label htmlFor="company-address" className="block text-sm font-medium text-gray-900">
+                  Address
+                </label>
+                <Input
+                  id="company-address"
+                  type="text"
+                  placeholder="Enter company address"
+                  value={formData.address_c}
+                  onChange={(e) => handleInputChange('address_c', e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full"
+                />
+              </div>
+              
+              <div className="space-y-1.5">
+                <label htmlFor="company-tags" className="block text-sm font-medium text-gray-900">
+                  Tags
+                </label>
+                <Input
+                  id="company-tags"
+                  type="text"
+                  placeholder="Enter tags separated by commas"
+                  value={formData.Tags}
+                  onChange={(e) => handleInputChange('Tags', e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full"
+                />
+              </div>
+            </>
           ) : (
-<>
+            <>
               <div className="space-y-4">
                 <div>
                   <label htmlFor="task-title" className="block text-sm font-semibold text-gray-900 mb-2">
@@ -520,7 +611,7 @@ title={`Add New ${type === 'contact' ? 'Contact' : type === 'deal' ? 'Deal' : 'T
             icon={isSubmitting ? "Loader2" : "Plus"}
             className={`px-6 py-2.5 font-medium shadow-sm transition-all duration-200 rounded-lg ${isSubmitting ? "animate-spin" : ""}`}
           >
-            {isSubmitting ? 'Adding...' : `Add ${type === 'contact' ? 'Contact' : type === 'deal' ? 'Deal' : 'Task'}`}
+{isSubmitting ? 'Adding...' : `Add ${type === 'contact' ? 'Contact' : type === 'deal' ? 'Deal' : type === 'company' ? 'Company' : 'Task'}`}
           </Button>
         </div>
       </form>
