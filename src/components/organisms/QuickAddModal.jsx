@@ -16,9 +16,9 @@ const [formData, setFormData] = useState({
     phone: '',
     company: '',
     // Deal fields
-    title: '',
+title: '',
     value: '',
-    stage: 'prospect',
+    stage: 'lead',
     contactId: '',
     tags: '',
     // Task fields
@@ -157,17 +157,17 @@ const taskData = {
       
       // Reset form
 setFormData({
-        name: '',
+name: '',
         email: '',
         phone: '',
         company: '',
         title: '',
         value: '',
-        stage: 'prospect',
+        stage: 'lead',
         contactId: '',
         description: '',
         dueDate: '',
-priority: 'medium',
+        priority: 'medium',
         status: 'not-started',
         tags: ''
       });
@@ -196,7 +196,7 @@ setFormData({
         company: '',
         title: '',
         value: '',
-stage: 'prospect',
+        stage: 'lead',
         contactId: '',
         tags: '',
         description: '',
@@ -210,11 +210,12 @@ stage: 'prospect',
   };
 
 const stageOptions = [
-    { value: 'prospect', label: 'Prospect' },
+    { value: 'lead', label: 'Lead' },
     { value: 'qualified', label: 'Qualified' },
     { value: 'proposal', label: 'Proposal' },
     { value: 'negotiation', label: 'Negotiation' },
-    { value: 'closed-won', label: 'Closed Won' }
+    { value: 'closed-won', label: 'Closed Won' },
+    { value: 'closed-lost', label: 'Closed Lost' }
   ];
 
 const contactOptions = contacts.map(contact => ({
