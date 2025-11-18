@@ -47,8 +47,8 @@ export const taskService = {
         dealId: task.deal_id_c?.Id || task.deal_id_c,
         createdAt: task.CreatedOn
       }));
-    } catch (error) {
-      console.error("Error fetching tasks:", error?.response?.data?.message || error);
+} catch (error) {
+      console.error("Error fetching tasks:", error?.response?.data?.message || error?.message || 'Unknown error');
       return [];
     }
   },
@@ -94,7 +94,7 @@ export const taskService = {
         createdAt: task.CreatedOn
       };
     } catch (error) {
-      console.error(`Error fetching task ${id}:`, error?.response?.data?.message || error);
+console.error(`Error fetching task ${id}:`, error?.response?.data?.message || error?.message || 'Unknown error');
       throw new Error("Task not found");
     }
   },
@@ -148,8 +148,8 @@ export const taskService = {
         dealId: task.deal_id_c?.Id || task.deal_id_c,
         createdAt: task.CreatedOn
       }));
-    } catch (error) {
-      console.error("Error fetching tasks by contact:", error?.response?.data?.message || error);
+} catch (error) {
+      console.error("Error fetching tasks by contact:", error?.response?.data?.message || error?.message || 'Unknown error');
       return [];
     }
   },
@@ -204,7 +204,7 @@ export const taskService = {
         createdAt: task.CreatedOn
       }));
     } catch (error) {
-      console.error("Error fetching tasks by deal:", error?.response?.data?.message || error);
+console.error("Error fetching tasks by deal:", error?.response?.data?.message || error?.message || 'Unknown error');
       return [];
     }
   },
@@ -268,7 +268,7 @@ export const taskService = {
         createdAt: task.CreatedOn
       }));
     } catch (error) {
-      console.error("Error fetching due tasks:", error?.response?.data?.message || error);
+console.error("Error fetching due tasks:", error?.response?.data?.message || error?.message || 'Unknown error');
       return [];
     }
   },
@@ -332,7 +332,7 @@ export const taskService = {
         createdAt: task.CreatedOn
       }));
     } catch (error) {
-      console.error("Error fetching overdue tasks:", error?.response?.data?.message || error);
+console.error("Error fetching overdue tasks:", error?.response?.data?.message || error?.message || 'Unknown error');
       return [];
     }
   },
@@ -372,8 +372,12 @@ export const taskService = {
         
         if (failed.length > 0) {
           console.error(`Failed to create ${failed.length} tasks:`, failed);
-          failed.forEach(record => {
-            record.errors?.forEach(error => toast.error(`${error.fieldLabel}: ${error}`));
+failed.forEach(record => {
+            record.errors?.forEach(error => {
+              const errorMsg = typeof error === 'string' ? error : error?.message || 'Validation error';
+              const fieldLabel = error?.fieldLabel || 'Field';
+              toast.error(`${fieldLabel}: ${errorMsg}`);
+            });
             if (record.message) toast.error(record.message);
           });
         }
@@ -395,8 +399,8 @@ export const taskService = {
         }
       }
     } catch (error) {
-      console.error("Error creating task:", error?.response?.data?.message || error);
-      throw error;
+console.error("Error creating task:", error?.response?.data?.message || error?.message || 'Unknown error');
+      throw new Error(error?.response?.data?.message || error?.message || 'Failed to create task');
     }
   },
 
@@ -441,8 +445,12 @@ export const taskService = {
         
         if (failed.length > 0) {
           console.error(`Failed to update ${failed.length} tasks:`, failed);
-          failed.forEach(record => {
-            record.errors?.forEach(error => toast.error(`${error.fieldLabel}: ${error}`));
+failed.forEach(record => {
+            record.errors?.forEach(error => {
+              const errorMsg = typeof error === 'string' ? error : error?.message || 'Validation error';
+              const fieldLabel = error?.fieldLabel || 'Field';
+              toast.error(`${fieldLabel}: ${errorMsg}`);
+            });
             if (record.message) toast.error(record.message);
           });
         }
@@ -464,8 +472,8 @@ export const taskService = {
         }
       }
     } catch (error) {
-      console.error("Error updating task:", error?.response?.data?.message || error);
-      throw error;
+console.error("Error updating task:", error?.response?.data?.message || error?.message || 'Unknown error');
+      throw new Error(error?.response?.data?.message || error?.message || 'Failed to update task');
     }
   },
 
@@ -475,8 +483,8 @@ export const taskService = {
       const currentTask = await this.getById(id);
       return await this.update(id, { completed: !currentTask.completed });
     } catch (error) {
-      console.error("Error toggling task completion:", error);
-      throw error;
+console.error("Error toggling task completion:", error?.response?.data?.message || error?.message || 'Unknown error');
+      throw new Error(error?.response?.data?.message || error?.message || 'Failed to toggle task completion');
     }
   },
 
@@ -505,7 +513,7 @@ export const taskService = {
         
         if (failed.length > 0) {
           console.error(`Failed to delete ${failed.length} tasks:`, failed);
-          failed.forEach(record => {
+failed.forEach(record => {
             if (record.message) toast.error(record.message);
           });
         }
@@ -514,7 +522,7 @@ export const taskService = {
       return true;
     } catch (error) {
       console.error("Error deleting task:", error?.response?.data?.message || error);
-      throw error;
+throw new Error(error?.response?.data?.message || error?.message || 'Failed to delete task');
     }
   },
 
@@ -541,7 +549,7 @@ export const taskService = {
         dueToday
       };
     } catch (error) {
-      console.error("Error getting task stats:", error);
+console.error("Error getting task stats:", error?.response?.data?.message || error?.message || 'Unknown error');
       return {
         total: 0,
         completed: 0,
