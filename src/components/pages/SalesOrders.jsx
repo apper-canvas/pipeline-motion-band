@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { salesOrderService } from '@/services/api/salesOrderService';
-import { contactService } from '@/services/api/contactService';
-import { dealService } from '@/services/api/dealService';
-import { format } from 'date-fns';
-import { toast } from 'react-toastify';
-import ApperIcon from '@/components/ApperIcon';
-import SearchBar from '@/components/molecules/SearchBar';
-import FilterDropdown from '@/components/molecules/FilterDropdown';
-import Loading from '@/components/ui/Loading';
-import Empty from '@/components/ui/Empty';
-import ErrorView from '@/components/ui/ErrorView';
-import SalesOrderDetailModal from '@/components/organisms/SalesOrderDetailModal';
-import QuickAddModal from '@/components/organisms/QuickAddModal';
-import Button from '@/components/atoms/Button';
-import Badge from '@/components/atoms/Badge';
+import React, { useEffect, useState } from "react";
+import { salesOrderService } from "@/services/api/salesOrderService";
+import { contactService } from "@/services/api/contactService";
+import { dealService } from "@/services/api/dealService";
+import { format } from "date-fns";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
+import SearchBar from "@/components/molecules/SearchBar";
+import FilterDropdown from "@/components/molecules/FilterDropdown";
+import Loading from "@/components/ui/Loading";
+import Empty from "@/components/ui/Empty";
+import ErrorView from "@/components/ui/ErrorView";
+import SalesOrderDetailModal from "@/components/organisms/SalesOrderDetailModal";
+import QuickAddModal from "@/components/organisms/QuickAddModal";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
 
 const SalesOrders = () => {
   const [salesOrders, setSalesOrders] = useState([]);
@@ -80,11 +80,11 @@ const SalesOrders = () => {
     }
 
     // Search filter
-    if (searchTerm.trim()) {
+if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(order => 
-        order.orderNumber.toLowerCase().includes(term) ||
-        getContactName(order.contactId).toLowerCase().includes(term) ||
+        (order.order_number_c || '').toLowerCase().includes(term) ||
+        getCustomerName(order.customer_id_c).toLowerCase().includes(term) ||
         getDealName(order.dealId).toLowerCase().includes(term) ||
         (order.notes && order.notes.toLowerCase().includes(term))
       );
@@ -93,9 +93,17 @@ const SalesOrders = () => {
     setFilteredOrders(filtered);
   };
 
-  const getContactName = (contactId) => {
-    if (!contactId) return 'N/A';
-    const contact = contacts.find(c => c.Id === contactId);
+const getCustomerName = (customerId) => {
+    // Handle lookup field - customerId can be object with Id and Name or just ID
+    if (!customerId) return 'N/A';
+    
+    // If it's a lookup object from database, use the Name property
+    if (typeof customerId === 'object' && customerId.Name) {
+      return customerId.Name;
+    }
+    
+    // Fallback to searching in contacts array by ID
+    const contact = contacts.find(c => c.Id === (typeof customerId === 'object' ? customerId.Id : customerId));
     return contact ? contact.Name || `${contact.first_name_c || ''} ${contact.last_name_c || ''}`.trim() : 'N/A';
   };
 
@@ -253,7 +261,7 @@ const SalesOrders = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredOrders.map((order) => (
+{filteredOrders.map((order) => (
                   <tr 
                     key={order.Id}
                     className="hover:bg-gray-50 cursor-pointer"
@@ -262,13 +270,13 @@ const SalesOrders = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {order.orderNumber}
+                          {order.order_number_c || 'N/A'}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {getContactName(order.contactId)}
+                        {getCustomerName(order.customer_id_c)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -278,22 +286,23 @@ const SalesOrders = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {format(new Date(order.orderDate), 'MMM dd, yyyy')}
+                        {order.order_date_c ? format(new Date(order.order_date_c), 'MMM dd, yyyy') : 'N/A'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge variant={getStatusColor(order.status)}>
-                        {order.status.replace('-', ' ').toUpperCase()}
+                      <Badge variant={getStatusColor(order.status_c)}>
+                        {order.status_c ? order.status_c.replace('-', ' ').toUpperCase() : 'DRAFT'}
                       </Badge>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                        {/* Note: Items field not in database schema, showing placeholder */}
+                        N/A
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-semibold text-gray-900">
-                        {formatCurrency(order.total)}
+                        {formatCurrency(order.total_amount_c || 0)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

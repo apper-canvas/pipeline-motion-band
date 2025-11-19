@@ -1,117 +1,319 @@
 import { toast } from 'react-toastify';
 import { csvExportService } from '@/services/csvExportService';
-import salesOrdersData from '../mockData/salesOrders.json';
+import { getApperClient } from '@/services/apperClient';
 
-// Mock data storage
-let salesOrders = [...salesOrdersData];
-
-// Utility function to simulate API delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Generate unique order number
-const generateOrderNumber = () => {
-  const year = new Date().getFullYear();
-  const nextId = Math.max(...salesOrders.map(so => so.Id), 0) + 1;
-  return `SO-${year}-${String(nextId).padStart(3, '0')}`;
-};
+// Get table name from database schema
+const TABLE_NAME = 'sales_order_c';
 
 export const salesOrderService = {
   // Get all sales orders
   getAll: async () => {
-    await delay(300);
-    return [...salesOrders];
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "order_number_c"}},
+          {"field": {"Name": "order_date_c"}},
+          {"field": {"Name": "customer_id_c"}},
+          {"field": {"Name": "total_amount_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "notes_c"}},
+          {"field": {"Name": "Tags"}}
+        ],
+        orderBy: [{"fieldName": "order_date_c", "sorttype": "DESC"}]
+      };
+
+      const response = await apperClient.fetchRecords(TABLE_NAME, params);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching sales orders:", error?.response?.data?.message || error);
+      toast.error("Failed to load sales orders");
+      return [];
+    }
   },
 
   // Get sales order by ID
   getById: async (id) => {
-    await delay(200);
-    const salesOrder = salesOrders.find(so => so.Id === parseInt(id));
-    if (!salesOrder) {
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "order_number_c"}},
+          {"field": {"Name": "order_date_c"}},
+          {"field": {"Name": "customer_id_c"}},
+          {"field": {"Name": "total_amount_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "notes_c"}},
+          {"field": {"Name": "Tags"}}
+        ]
+      };
+
+      const response = await apperClient.getRecordById(TABLE_NAME, parseInt(id), params);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error('Sales order not found');
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching sales order ${id}:`, error?.response?.data?.message || error);
       throw new Error('Sales order not found');
     }
-    return { ...salesOrder };
   },
 
   // Create new sales order
   create: async (salesOrderData) => {
-    await delay(400);
-    
-    const newSalesOrder = {
-      ...salesOrderData,
-      Id: Date.now(),
-      orderNumber: generateOrderNumber(),
-      orderDate: salesOrderData.orderDate || new Date().toISOString().split('T')[0]
-    };
+    try {
+      const apperClient = getApperClient();
+      
+      // Prepare data with only Updateable fields
+      const recordData = {};
+      if (salesOrderData.Name) recordData.Name = salesOrderData.Name;
+      if (salesOrderData.order_number_c) recordData.order_number_c = salesOrderData.order_number_c;
+      if (salesOrderData.order_date_c) recordData.order_date_c = salesOrderData.order_date_c;
+      if (salesOrderData.customer_id_c) recordData.customer_id_c = parseInt(salesOrderData.customer_id_c);
+      if (salesOrderData.total_amount_c) recordData.total_amount_c = parseFloat(salesOrderData.total_amount_c);
+      if (salesOrderData.status_c) recordData.status_c = salesOrderData.status_c;
+      if (salesOrderData.notes_c) recordData.notes_c = salesOrderData.notes_c;
+      if (salesOrderData.Tags) recordData.Tags = salesOrderData.Tags;
 
-    salesOrders.push(newSalesOrder);
-    toast.success('Sales order created successfully');
-    return { ...newSalesOrder };
+      const params = {
+        records: [recordData]
+      };
+
+      const response = await apperClient.createRecord(TABLE_NAME, params);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error('Failed to create sales order');
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+
+        if (failed.length > 0) {
+          console.error(`Failed to create ${failed.length} sales orders:`, failed);
+          failed.forEach(record => {
+            record.errors?.forEach(error => toast.error(`${error.fieldLabel}: ${error}`));
+            if (record.message) toast.error(record.message);
+          });
+          throw new Error('Failed to create sales order');
+        }
+
+        if (successful.length > 0) {
+          toast.success('Sales order created successfully');
+          return successful[0].data;
+        }
+      }
+
+      throw new Error('Failed to create sales order');
+    } catch (error) {
+      console.error("Error creating sales order:", error?.response?.data?.message || error);
+      throw error;
+    }
   },
 
   // Update existing sales order
   update: async (id, updates) => {
-    await delay(350);
-    
-    const index = salesOrders.findIndex(so => so.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error('Sales order not found');
-    }
+    try {
+      const apperClient = getApperClient();
+      
+      // Prepare data with only Updateable fields
+      const recordData = { Id: parseInt(id) };
+      if (updates.Name !== undefined) recordData.Name = updates.Name;
+      if (updates.order_number_c !== undefined) recordData.order_number_c = updates.order_number_c;
+      if (updates.order_date_c !== undefined) recordData.order_date_c = updates.order_date_c;
+      if (updates.customer_id_c !== undefined) recordData.customer_id_c = updates.customer_id_c ? parseInt(updates.customer_id_c) : null;
+      if (updates.total_amount_c !== undefined) recordData.total_amount_c = updates.total_amount_c ? parseFloat(updates.total_amount_c) : null;
+      if (updates.status_c !== undefined) recordData.status_c = updates.status_c;
+      if (updates.notes_c !== undefined) recordData.notes_c = updates.notes_c;
+      if (updates.Tags !== undefined) recordData.Tags = updates.Tags;
 
-    salesOrders[index] = { ...salesOrders[index], ...updates };
-    toast.success('Sales order updated successfully');
-    return { ...salesOrders[index] };
+      const params = {
+        records: [recordData]
+      };
+
+      const response = await apperClient.updateRecord(TABLE_NAME, params);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        throw new Error('Failed to update sales order');
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+
+        if (failed.length > 0) {
+          console.error(`Failed to update ${failed.length} sales orders:`, failed);
+          failed.forEach(record => {
+            record.errors?.forEach(error => toast.error(`${error.fieldLabel}: ${error}`));
+            if (record.message) toast.error(record.message);
+          });
+          throw new Error('Failed to update sales order');
+        }
+
+        if (successful.length > 0) {
+          toast.success('Sales order updated successfully');
+          return successful[0].data;
+        }
+      }
+
+      throw new Error('Failed to update sales order');
+    } catch (error) {
+      console.error("Error updating sales order:", error?.response?.data?.message || error);
+      throw error;
+    }
   },
 
   // Delete sales order
   delete: async (id) => {
-    await delay(250);
-    
-    const index = salesOrders.findIndex(so => so.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error('Sales order not found');
-    }
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
 
-    salesOrders.splice(index, 1);
-    toast.success('Sales order deleted successfully');
-    return true;
+      const response = await apperClient.deleteRecord(TABLE_NAME, params);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return false;
+      }
+
+      if (response.results) {
+        const successful = response.results.filter(r => r.success);
+        const failed = response.results.filter(r => !r.success);
+
+        if (failed.length > 0) {
+          console.error(`Failed to delete ${failed.length} sales orders:`, failed);
+          failed.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+          return false;
+        }
+
+        if (successful.length > 0) {
+          toast.success('Sales order deleted successfully');
+          return true;
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Error deleting sales order:", error?.response?.data?.message || error);
+      return false;
+    }
   },
 
   // Export sales orders to CSV
   exportToCsv: async (filteredOrders = null) => {
-    await delay(200);
-    
-    const ordersToExport = filteredOrders || salesOrders;
-    const csvData = ordersToExport.map(order => ({
-      'Order Number': order.orderNumber,
-      'Contact': order.contactId ? `Contact ${order.contactId}` : 'N/A',
-      'Deal': order.dealId ? `Deal ${order.dealId}` : 'N/A',
-      'Order Date': order.orderDate,
-      'Status': order.status,
-      'Items Count': order.items.length,
-      'Subtotal': order.subtotal,
-      'Tax': order.tax,
-      'Total': order.total,
-      'Notes': order.notes || ''
-    }));
+    try {
+      let ordersToExport = filteredOrders;
+      
+      if (!ordersToExport) {
+        ordersToExport = await salesOrderService.getAll();
+      }
 
-    return csvExportService.exportToCsv(csvData, 'sales-orders');
+      const csvData = ordersToExport.map(order => ({
+        'Order Number': order.order_number_c || 'N/A',
+        'Customer': order.customer_id_c?.Name || 'N/A',
+        'Order Date': order.order_date_c || 'N/A',
+        'Status': order.status_c || 'N/A',
+        'Total': order.total_amount_c || '0',
+        'Notes': order.notes_c || ''
+      }));
+
+      return csvExportService.exportToCsv(csvData, 'sales-orders');
+    } catch (error) {
+      console.error("Error exporting sales orders:", error?.response?.data?.message || error);
+      toast.error("Failed to export sales orders");
+      throw error;
+    }
   },
 
-  // Get sales orders by contact
-  getByContact: async (contactId) => {
-    await delay(300);
-    return salesOrders.filter(so => so.contactId === parseInt(contactId));
-  },
+  // Get sales orders by customer
+  getByCustomer: async (customerId) => {
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "order_number_c"}},
+          {"field": {"Name": "order_date_c"}},
+          {"field": {"Name": "customer_id_c"}},
+          {"field": {"Name": "total_amount_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "notes_c"}}
+        ],
+        where: [{
+          "FieldName": "customer_id_c",
+          "Operator": "EqualTo",
+          "Values": [parseInt(customerId)]
+        }]
+      };
 
-  // Get sales orders by deal
-  getByDeal: async (dealId) => {
-    await delay(300);
-    return salesOrders.filter(so => so.dealId === parseInt(dealId));
+      const response = await apperClient.fetchRecords(TABLE_NAME, params);
+
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching sales orders by customer:", error?.response?.data?.message || error);
+      return [];
+    }
   },
 
   // Get sales orders by status
   getByStatus: async (status) => {
-    await delay(300);
-    return salesOrders.filter(so => so.status === status);
+    try {
+      const apperClient = getApperClient();
+      const params = {
+        fields: [
+          {"field": {"Name": "Name"}},
+          {"field": {"Name": "order_number_c"}},
+          {"field": {"Name": "order_date_c"}},
+          {"field": {"Name": "customer_id_c"}},
+          {"field": {"Name": "total_amount_c"}},
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "notes_c"}}
+        ],
+        where: [{
+          "FieldName": "status_c",
+          "Operator": "EqualTo",
+          "Values": [status]
+        }]
+      };
+
+      const response = await apperClient.fetchRecords(TABLE_NAME, params);
+
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching sales orders by status:", error?.response?.data?.message || error);
+      return [];
+    }
   }
 };
