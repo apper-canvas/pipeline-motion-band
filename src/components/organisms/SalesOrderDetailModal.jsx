@@ -117,14 +117,14 @@ const SalesOrderDetailModal = ({ isOpen, onClose, salesOrder, onSuccess }) => {
     return { subtotal, tax, total };
   };
 
-  const getContactName = (contactId) => {
+const getContactName = (contactId) => {
     const contact = contacts.find(c => c.Id === parseInt(contactId));
-    return contact ? contact.Name || `${contact.first_name_c || ''} ${contact.last_name_c || ''}`.trim() : 'N/A';
+    return contact ? contact.Name || `${contact.first_name_c || ''} ${contact.last_name_c || ''}`.trim() || 'Unnamed Contact' : 'N/A';
   };
 
   const getDealName = (dealId) => {
     const deal = deals.find(d => d.Id === parseInt(dealId));
-    return deal ? deal.Name || deal.title_c : 'N/A';
+    return deal ? deal.Name || deal.title_c || 'Unnamed Deal' : 'N/A';
   };
 
   const getStatusColor = (status) => {
@@ -212,7 +212,7 @@ const SalesOrderDetailModal = ({ isOpen, onClose, salesOrder, onSuccess }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Contact *
             </label>
-            <Select
+<Select
               value={formData.contactId}
               onChange={(e) => handleInputChange('contactId', e.target.value)}
               className="w-full"
@@ -220,7 +220,7 @@ const SalesOrderDetailModal = ({ isOpen, onClose, salesOrder, onSuccess }) => {
               <option value="">Select Contact</option>
               {contacts.map(contact => (
                 <option key={contact.Id} value={contact.Id}>
-                  {contact.Name || `${contact.first_name_c || ''} ${contact.last_name_c || ''}`.trim()}
+                  {contact.Name || `${contact.first_name_c || ''} ${contact.last_name_c || ''}`.trim() || 'Unnamed Contact'}
                 </option>
               ))}
             </Select>
@@ -230,7 +230,7 @@ const SalesOrderDetailModal = ({ isOpen, onClose, salesOrder, onSuccess }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Associated Deal
             </label>
-            <Select
+<Select
               value={formData.dealId}
               onChange={(e) => handleInputChange('dealId', e.target.value)}
               className="w-full"
@@ -238,7 +238,7 @@ const SalesOrderDetailModal = ({ isOpen, onClose, salesOrder, onSuccess }) => {
               <option value="">Select Deal (Optional)</option>
               {deals.map(deal => (
                 <option key={deal.Id} value={deal.Id}>
-                  {deal.Name || deal.title_c}
+                  {deal.Name || deal.title_c || 'Unnamed Deal'}
                 </option>
               ))}
             </Select>
