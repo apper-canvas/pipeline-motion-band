@@ -370,18 +370,23 @@ async create(taskData) {
         dealId: sanitizeValue(taskData.dealId)
       };
 
+const recordData = {};
+      
+      // Ensure we always have at least the Name and title fields
+      recordData.Name = cleanData.title || 'New Task';
+      recordData.title_c = cleanData.title || 'New Task';
+      
+      // Add other fields only if they have meaningful values
+      if (cleanData.description) recordData.description_c = cleanData.description;
+      if (cleanData.dueDate) recordData.due_date_c = cleanData.dueDate;
+      if (cleanData.completed !== undefined) recordData.completed_c = cleanData.completed;
+      if (cleanData.priority) recordData.priority_c = cleanData.priority;
+      if (cleanData.status) recordData.status_c = cleanData.status;
+      if (cleanData.contactId) recordData.contact_id_c = parseInt(cleanData.contactId);
+      if (cleanData.dealId) recordData.deal_id_c = parseInt(cleanData.dealId);
+
       const params = {
-        records: [{
-          Name: cleanData.title,
-          title_c: cleanData.title,
-          description_c: cleanData.description,
-          due_date_c: cleanData.dueDate,
-          completed_c: cleanData.completed,
-          priority_c: cleanData.priority,
-          status_c: cleanData.status,
-          contact_id_c: cleanData.contactId ? parseInt(cleanData.contactId) : null,
-          deal_id_c: cleanData.dealId ? parseInt(cleanData.dealId) : null
-        }]
+        records: [recordData]
       };
 
       const response = await apperClient.createRecord('tasks_c', params);
@@ -437,24 +442,50 @@ async create(taskData) {
         throw new Error("ApperClient not available");
       }
 
-      const updateFields = {};
+const updateFields = { Id: parseInt(id) };
+      let hasUpdateableFields = false;
+      
       if (taskData.title !== undefined) {
-        updateFields.Name = taskData.title;
-        updateFields.title_c = taskData.title;
+        updateFields.Name = taskData.title || 'Updated Task';
+        updateFields.title_c = taskData.title || 'Updated Task';
+        hasUpdateableFields = true;
       }
-      if (taskData.description !== undefined) updateFields.description_c = taskData.description;
-      if (taskData.dueDate !== undefined) updateFields.due_date_c = taskData.dueDate;
-      if (taskData.completed !== undefined) updateFields.completed_c = taskData.completed;
-      if (taskData.priority !== undefined) updateFields.priority_c = taskData.priority;
-      if (taskData.status !== undefined) updateFields.status_c = taskData.status;
-      if (taskData.contactId !== undefined) updateFields.contact_id_c = taskData.contactId ? parseInt(taskData.contactId) : null;
-      if (taskData.dealId !== undefined) updateFields.deal_id_c = taskData.dealId ? parseInt(taskData.dealId) : null;
+      if (taskData.description !== undefined) {
+        updateFields.description_c = taskData.description;
+        hasUpdateableFields = true;
+      }
+      if (taskData.dueDate !== undefined) {
+        updateFields.due_date_c = taskData.dueDate;
+        hasUpdateableFields = true;
+      }
+      if (taskData.completed !== undefined) {
+        updateFields.completed_c = taskData.completed;
+        hasUpdateableFields = true;
+      }
+      if (taskData.priority !== undefined) {
+        updateFields.priority_c = taskData.priority;
+        hasUpdateableFields = true;
+      }
+      if (taskData.status !== undefined) {
+        updateFields.status_c = taskData.status;
+        hasUpdateableFields = true;
+      }
+      if (taskData.contactId !== undefined) {
+        updateFields.contact_id_c = taskData.contactId ? parseInt(taskData.contactId) : null;
+        hasUpdateableFields = true;
+      }
+      if (taskData.dealId !== undefined) {
+        updateFields.deal_id_c = taskData.dealId ? parseInt(taskData.dealId) : null;
+        hasUpdateableFields = true;
+      }
+
+      // Ensure we have at least one updateable field beyond Id
+      if (!hasUpdateableFields) {
+        throw new Error("At least one field must be provided for update");
+      }
 
       const params = {
-        records: [{
-          Id: parseInt(id),
-          ...updateFields
-        }]
+        records: [updateFields]
       };
 
       const response = await apperClient.updateRecord('tasks_c', params);

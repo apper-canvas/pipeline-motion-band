@@ -115,9 +115,11 @@ export const companyService = {
         return null;
       }
 
-      // Only include Updateable fields
+// Only include Updateable fields and ensure Name is always present
       const createData = {};
-      if (companyData.Name) createData.Name = companyData.Name;
+      createData.Name = companyData.Name || 'New Company'; // Always required
+      
+      // Add other fields only if they have values
       if (companyData.Tags) createData.Tags = companyData.Tags;
       if (companyData.address_c) createData.address_c = companyData.address_c;
       if (companyData.phone_c) createData.phone_c = companyData.phone_c;
@@ -170,13 +172,35 @@ export const companyService = {
         return null;
       }
 
-      // Only include Updateable fields
+// Only include Updateable fields and ensure at least one field is updated
       const updateData = { Id: id };
-      if (companyData.Name !== undefined) updateData.Name = companyData.Name;
-      if (companyData.Tags !== undefined) updateData.Tags = companyData.Tags;
-      if (companyData.address_c !== undefined) updateData.address_c = companyData.address_c;
-      if (companyData.phone_c !== undefined) updateData.phone_c = companyData.phone_c;
-      if (companyData.email_c !== undefined) updateData.email_c = companyData.email_c;
+      let hasUpdateableFields = false;
+      
+      if (companyData.Name !== undefined) {
+        updateData.Name = companyData.Name || 'Updated Company';
+        hasUpdateableFields = true;
+      }
+      if (companyData.Tags !== undefined) {
+        updateData.Tags = companyData.Tags;
+        hasUpdateableFields = true;
+      }
+      if (companyData.address_c !== undefined) {
+        updateData.address_c = companyData.address_c;
+        hasUpdateableFields = true;
+      }
+      if (companyData.phone_c !== undefined) {
+        updateData.phone_c = companyData.phone_c;
+        hasUpdateableFields = true;
+      }
+      if (companyData.email_c !== undefined) {
+        updateData.email_c = companyData.email_c;
+        hasUpdateableFields = true;
+      }
+
+      // Ensure we have at least one updateable field beyond Id
+      if (!hasUpdateableFields) {
+        throw new Error("At least one field must be provided for update");
+      }
 
       const params = {
         records: [updateData]

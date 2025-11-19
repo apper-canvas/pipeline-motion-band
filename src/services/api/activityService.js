@@ -263,16 +263,23 @@ export const activityService = {
 
       const timestamp = activityData.timestamp || new Date().toISOString();
 
+const recordData = {};
+      
+      // Ensure we always have at least the Name and subject fields
+      recordData.Name = activityData.subject || 'New Activity';
+      recordData.subject_c = activityData.subject || 'New Activity';
+      
+      // Add other fields
+      recordData.type_c = activityData.type || 'note';
+      recordData.timestamp_c = timestamp;
+      
+      // Add optional fields only if they have values
+      if (activityData.content) recordData.content_c = activityData.content;
+      if (activityData.contactId) recordData.contact_id_c = parseInt(activityData.contactId);
+      if (activityData.dealId) recordData.deal_id_c = parseInt(activityData.dealId);
+
       const params = {
-        records: [{
-          Name: activityData.subject,
-          type_c: activityData.type || 'note',
-          subject_c: activityData.subject,
-          content_c: activityData.content || '',
-          contact_id_c: activityData.contactId ? parseInt(activityData.contactId) : null,
-          deal_id_c: activityData.dealId ? parseInt(activityData.dealId) : null,
-          timestamp_c: timestamp
-        }]
+        records: [recordData]
       };
 
       const response = await apperClient.createRecord('activities_c', params);
@@ -321,22 +328,42 @@ export const activityService = {
         throw new Error("ApperClient not available");
       }
 
-      const updateFields = {};
+const updateFields = { Id: parseInt(id) };
+      let hasUpdateableFields = false;
+      
       if (activityData.subject !== undefined) {
-        updateFields.Name = activityData.subject;
-        updateFields.subject_c = activityData.subject;
+        updateFields.Name = activityData.subject || 'Updated Activity';
+        updateFields.subject_c = activityData.subject || 'Updated Activity';
+        hasUpdateableFields = true;
       }
-      if (activityData.type !== undefined) updateFields.type_c = activityData.type;
-      if (activityData.content !== undefined) updateFields.content_c = activityData.content;
-      if (activityData.contactId !== undefined) updateFields.contact_id_c = activityData.contactId ? parseInt(activityData.contactId) : null;
-      if (activityData.dealId !== undefined) updateFields.deal_id_c = activityData.dealId ? parseInt(activityData.dealId) : null;
-      if (activityData.timestamp !== undefined) updateFields.timestamp_c = activityData.timestamp;
+      if (activityData.type !== undefined) {
+        updateFields.type_c = activityData.type;
+        hasUpdateableFields = true;
+      }
+      if (activityData.content !== undefined) {
+        updateFields.content_c = activityData.content;
+        hasUpdateableFields = true;
+      }
+      if (activityData.contactId !== undefined) {
+        updateFields.contact_id_c = activityData.contactId ? parseInt(activityData.contactId) : null;
+        hasUpdateableFields = true;
+      }
+      if (activityData.dealId !== undefined) {
+        updateFields.deal_id_c = activityData.dealId ? parseInt(activityData.dealId) : null;
+        hasUpdateableFields = true;
+      }
+      if (activityData.timestamp !== undefined) {
+        updateFields.timestamp_c = activityData.timestamp;
+        hasUpdateableFields = true;
+      }
+
+      // Ensure we have at least one updateable field beyond Id
+      if (!hasUpdateableFields) {
+        throw new Error("At least one field must be provided for update");
+      }
 
       const params = {
-        records: [{
-          Id: parseInt(id),
-          ...updateFields
-        }]
+        records: [updateFields]
       };
 
       const response = await apperClient.updateRecord('activities_c', params);

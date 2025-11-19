@@ -106,17 +106,29 @@ export const contactService = {
         throw new Error("ApperClient not available");
       }
 
+const recordData = {};
+      
+      // Ensure we always have at least the Name field
+      const fullName = `${contactData.firstName || contactData.name || 'New'} ${contactData.lastName || ''}`.trim();
+      recordData.Name = fullName || 'New Contact';
+      
+      // Add other fields only if they have meaningful values
+      if (contactData.firstName || contactData.name) {
+        recordData.first_name_c = contactData.firstName || contactData.name?.split(' ')[0] || '';
+      }
+      if (contactData.lastName || (contactData.name && contactData.name.includes(' '))) {
+        recordData.last_name_c = contactData.lastName || contactData.name?.split(' ').slice(1).join(' ') || '';
+      }
+      if (contactData.email) recordData.email_c = contactData.email;
+      if (contactData.phone) recordData.phone_c = contactData.phone;
+      if (contactData.company) recordData.company_c = contactData.company;
+      if (contactData.position) recordData.position_c = contactData.position;
+      if (contactData.tags && Array.isArray(contactData.tags) && contactData.tags.length > 0) {
+        recordData.Tags = contactData.tags.join(',');
+      }
+
       const params = {
-        records: [{
-          Name: `${contactData.firstName || contactData.name} ${contactData.lastName || ''}`.trim(),
-          first_name_c: contactData.firstName || contactData.name?.split(' ')[0] || '',
-          last_name_c: contactData.lastName || contactData.name?.split(' ').slice(1).join(' ') || '',
-          email_c: contactData.email || '',
-          phone_c: contactData.phone || '',
-          company_c: contactData.company || '',
-          position_c: contactData.position || '',
-          Tags: Array.isArray(contactData.tags) ? contactData.tags.join(',') : ''
-        }]
+        records: [recordData]
       };
 
       const response = await apperClient.createRecord('contacts_c', params);
@@ -168,25 +180,50 @@ export const contactService = {
         throw new Error("ApperClient not available");
       }
 
-      const updateFields = {};
+const updateFields = { Id: parseInt(id) };
+      let hasUpdateableFields = false;
+      
       if (contactData.firstName !== undefined || contactData.lastName !== undefined) {
-        updateFields.Name = `${contactData.firstName || ''} ${contactData.lastName || ''}`.trim();
+        const fullName = `${contactData.firstName || ''} ${contactData.lastName || ''}`.trim();
+        updateFields.Name = fullName || 'Updated Contact';
+        hasUpdateableFields = true;
       }
-      if (contactData.firstName !== undefined) updateFields.first_name_c = contactData.firstName;
-      if (contactData.lastName !== undefined) updateFields.last_name_c = contactData.lastName;
-      if (contactData.email !== undefined) updateFields.email_c = contactData.email;
-      if (contactData.phone !== undefined) updateFields.phone_c = contactData.phone;
-      if (contactData.company !== undefined) updateFields.company_c = contactData.company;
-      if (contactData.position !== undefined) updateFields.position_c = contactData.position;
+      if (contactData.firstName !== undefined) {
+        updateFields.first_name_c = contactData.firstName || '';
+        hasUpdateableFields = true;
+      }
+      if (contactData.lastName !== undefined) {
+        updateFields.last_name_c = contactData.lastName || '';
+        hasUpdateableFields = true;
+      }
+      if (contactData.email !== undefined) {
+        updateFields.email_c = contactData.email;
+        hasUpdateableFields = true;
+      }
+      if (contactData.phone !== undefined) {
+        updateFields.phone_c = contactData.phone;
+        hasUpdateableFields = true;
+      }
+      if (contactData.company !== undefined) {
+        updateFields.company_c = contactData.company;
+        hasUpdateableFields = true;
+      }
+      if (contactData.position !== undefined) {
+        updateFields.position_c = contactData.position;
+        hasUpdateableFields = true;
+      }
       if (contactData.tags !== undefined) {
-        updateFields.Tags = Array.isArray(contactData.tags) ? contactData.tags.join(',') : contactData.tags;
+        updateFields.Tags = Array.isArray(contactData.tags) ? contactData.tags.join(',') : contactData.tags || '';
+        hasUpdateableFields = true;
+      }
+
+      // Ensure we have at least one updateable field beyond Id
+      if (!hasUpdateableFields) {
+        throw new Error("At least one field must be provided for update");
       }
 
       const params = {
-        records: [{
-          Id: parseInt(id),
-          ...updateFields
-        }]
+        records: [updateFields]
       };
 
       const response = await apperClient.updateRecord('contacts_c', params);

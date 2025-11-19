@@ -214,17 +214,26 @@ CreatedOn: deal.CreatedOn,
         throw new Error("ApperClient not available");
       }
 
-const params = {
-        records: [{
-Name: dealData.title,
-          title_c: dealData.title,
-          value_c: parseFloat(dealData.value) || 0,
-          stage_c: dealData.stage || 'lead',
-          probability_c: parseInt(dealData.probability) || 0,
-          expected_close_date_c: dealData.expectedCloseDate,
-          contact_id_c: dealData.contactId ? parseInt(dealData.contactId) : null,
-          Tags: dealData.tags || null
-        }]
+const recordData = {};
+      
+      // Ensure we always have at least one field - Name is required
+      recordData.Name = dealData.title || 'New Deal';
+      recordData.title_c = dealData.title || 'New Deal';
+      
+      // Add other fields only if they have values
+      if (dealData.value !== undefined && dealData.value !== null && dealData.value !== '') {
+        recordData.value_c = parseFloat(dealData.value) || 0;
+      }
+      if (dealData.stage) recordData.stage_c = dealData.stage;
+      if (dealData.probability !== undefined && dealData.probability !== null && dealData.probability !== '') {
+        recordData.probability_c = parseInt(dealData.probability) || 0;
+      }
+      if (dealData.expectedCloseDate) recordData.expected_close_date_c = dealData.expectedCloseDate;
+      if (dealData.contactId) recordData.contact_id_c = parseInt(dealData.contactId);
+      if (dealData.tags) recordData.Tags = dealData.tags;
+
+      const params = {
+        records: [recordData]
       };
 
       const response = await apperClient.createRecord('deals_c', params);
@@ -277,17 +286,42 @@ CreatedOn: createdDeal.CreatedOn,
       }
 
 const updateFields = { Id: parseInt(id) };
+      let hasUpdateableFields = false;
       
       if (dealData.title !== undefined) {
-        updateFields.Name = dealData.title;
-        updateFields.title_c = dealData.title;
+        updateFields.Name = dealData.title || 'Updated Deal';
+        updateFields.title_c = dealData.title || 'Updated Deal';
+        hasUpdateableFields = true;
       }
-      if (dealData.value !== undefined) updateFields.value_c = parseFloat(dealData.value);
-      if (dealData.stage !== undefined) updateFields.stage_c = dealData.stage;
-      if (dealData.probability !== undefined) updateFields.probability_c = parseInt(dealData.probability);
-      if (dealData.expectedCloseDate !== undefined) updateFields.expected_close_date_c = dealData.expectedCloseDate;
-      if (dealData.contactId !== undefined) updateFields.contact_id_c = dealData.contactId ? parseInt(dealData.contactId) : null;
-      if (dealData.tags !== undefined) updateFields.Tags = dealData.tags && dealData.tags.trim() ? dealData.tags.trim() : null;
+      if (dealData.value !== undefined) {
+        updateFields.value_c = parseFloat(dealData.value) || 0;
+        hasUpdateableFields = true;
+      }
+      if (dealData.stage !== undefined) {
+        updateFields.stage_c = dealData.stage;
+        hasUpdateableFields = true;
+      }
+      if (dealData.probability !== undefined) {
+        updateFields.probability_c = parseInt(dealData.probability) || 0;
+        hasUpdateableFields = true;
+      }
+      if (dealData.expectedCloseDate !== undefined) {
+        updateFields.expected_close_date_c = dealData.expectedCloseDate;
+        hasUpdateableFields = true;
+      }
+      if (dealData.contactId !== undefined) {
+        updateFields.contact_id_c = dealData.contactId ? parseInt(dealData.contactId) : null;
+        hasUpdateableFields = true;
+      }
+      if (dealData.tags !== undefined) {
+        updateFields.Tags = dealData.tags && dealData.tags.trim() ? dealData.tags.trim() : null;
+        hasUpdateableFields = true;
+      }
+      
+      // Ensure we have at least one updateable field beyond Id
+      if (!hasUpdateableFields) {
+        throw new Error("At least one field must be provided for update");
+      }
       
       const params = {
         records: [updateFields]

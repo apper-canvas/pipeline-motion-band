@@ -77,13 +77,17 @@ export const salesOrderService = {
     try {
       const apperClient = getApperClient();
       
-      // Prepare data with only Updateable fields
+// Prepare data with only Updateable fields and ensure Name is always present
       const recordData = {};
-      if (salesOrderData.Name) recordData.Name = salesOrderData.Name;
+      recordData.Name = salesOrderData.Name || salesOrderData.order_number_c || 'New Sales Order'; // Always required
+      
+      // Add other fields only if they have values
       if (salesOrderData.order_number_c) recordData.order_number_c = salesOrderData.order_number_c;
       if (salesOrderData.order_date_c) recordData.order_date_c = salesOrderData.order_date_c;
       if (salesOrderData.customer_id_c) recordData.customer_id_c = parseInt(salesOrderData.customer_id_c);
-      if (salesOrderData.total_amount_c) recordData.total_amount_c = parseFloat(salesOrderData.total_amount_c);
+      if (salesOrderData.total_amount_c !== undefined && salesOrderData.total_amount_c !== null && salesOrderData.total_amount_c !== '') {
+        recordData.total_amount_c = parseFloat(salesOrderData.total_amount_c);
+      }
       if (salesOrderData.status_c) recordData.status_c = salesOrderData.status_c;
       if (salesOrderData.notes_c) recordData.notes_c = salesOrderData.notes_c;
       if (salesOrderData.Tags) recordData.Tags = salesOrderData.Tags;
@@ -131,16 +135,47 @@ export const salesOrderService = {
     try {
       const apperClient = getApperClient();
       
-      // Prepare data with only Updateable fields
+// Prepare data with only Updateable fields and ensure at least one field is updated
       const recordData = { Id: parseInt(id) };
-      if (updates.Name !== undefined) recordData.Name = updates.Name;
-      if (updates.order_number_c !== undefined) recordData.order_number_c = updates.order_number_c;
-      if (updates.order_date_c !== undefined) recordData.order_date_c = updates.order_date_c;
-      if (updates.customer_id_c !== undefined) recordData.customer_id_c = updates.customer_id_c ? parseInt(updates.customer_id_c) : null;
-      if (updates.total_amount_c !== undefined) recordData.total_amount_c = updates.total_amount_c ? parseFloat(updates.total_amount_c) : null;
-      if (updates.status_c !== undefined) recordData.status_c = updates.status_c;
-      if (updates.notes_c !== undefined) recordData.notes_c = updates.notes_c;
-      if (updates.Tags !== undefined) recordData.Tags = updates.Tags;
+      let hasUpdateableFields = false;
+      
+      if (updates.Name !== undefined) {
+        recordData.Name = updates.Name || 'Updated Sales Order';
+        hasUpdateableFields = true;
+      }
+      if (updates.order_number_c !== undefined) {
+        recordData.order_number_c = updates.order_number_c;
+        hasUpdateableFields = true;
+      }
+      if (updates.order_date_c !== undefined) {
+        recordData.order_date_c = updates.order_date_c;
+        hasUpdateableFields = true;
+      }
+      if (updates.customer_id_c !== undefined) {
+        recordData.customer_id_c = updates.customer_id_c ? parseInt(updates.customer_id_c) : null;
+        hasUpdateableFields = true;
+      }
+      if (updates.total_amount_c !== undefined) {
+        recordData.total_amount_c = updates.total_amount_c ? parseFloat(updates.total_amount_c) : null;
+        hasUpdateableFields = true;
+      }
+      if (updates.status_c !== undefined) {
+        recordData.status_c = updates.status_c;
+        hasUpdateableFields = true;
+      }
+      if (updates.notes_c !== undefined) {
+        recordData.notes_c = updates.notes_c;
+        hasUpdateableFields = true;
+      }
+      if (updates.Tags !== undefined) {
+        recordData.Tags = updates.Tags;
+        hasUpdateableFields = true;
+      }
+
+      // Ensure we have at least one updateable field beyond Id
+      if (!hasUpdateableFields) {
+        throw new Error("At least one field must be provided for update");
+      }
 
       const params = {
         records: [recordData]
